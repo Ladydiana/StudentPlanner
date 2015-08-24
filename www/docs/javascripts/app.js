@@ -96,7 +96,15 @@ var AddTaskTemplate = [
 
   '<div class="bar bar-standard bar-header-secondary">',
   '<form>',
-  '<input id="txtName" type="text" placeholder="Full name">',
+  '<select name="event_type" id="event_type">',
+  '<option value="Homework">Homework </option>',
+  '<option value="Project">Project </option>',
+  '<option value="Course">Course </option>',
+  '<option value="Lab">Lab </option>',
+  '<option value="Exam">Exam </option>',
+  '<option value="Meeting">Meeting </option>',
+  '<option value="Other">Other </option>',
+  '</select>',
   '<input id="txtTitle" type="text" placeholder="Title">',
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
   '<button id="btnAdd" class="btn btn-positive btn-block">Save Task</button>',
@@ -123,10 +131,11 @@ var HomeView = Jr.View.extend({
 
   addOne: function(todoList) {
    console.log(todoList);
-   var name = todoList.attributes.name;
    var title = todoList.attributes.title;
    var desc = todoList.attributes.description;
-   $('#lst').append('<li class="table-view-cell">' + title + ': ' + desc + ' by ' + name + '</li>');
+   var event_type= todoList.attributes.event_type;
+   $('#lst').append('<li class="table-view-cell">' + event_type +"- "+ title + ': ' + desc + '</li>');
+   console.log(event_type);
   },
 
   events: {
@@ -276,11 +285,11 @@ var AddTaskView = Jr.View.extend({
     });
   },
   onClickAdd: function() {
-    var name = $('#txtName').val();
+    var event_type = $('#event_type').val();
     var title = $('#txtTitle').val();
     var desc = $('#txtDesc').val();
     this.collection.create({
-        name: name,
+        event_type: event_type,
         title: title,
         description: desc
     });
