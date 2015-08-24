@@ -27,6 +27,25 @@ var LoginTemplate = [
   '<input type="password" id="pass" placeholder="Password">',
   '<button id="btnLogin" class="btn btn-positive btn-block">Login</button>',
   '</form>',
+  '<br/>',
+  '<a href="#register" style="margin:auto; text-align:center; display:block;">Don\'t have an account? Click here to REGISTER.</a>',
+  '</div>'
+
+
+].join('\n');
+
+
+var RegisterTemplate = [
+  '<nav class="bar bar-standard">',
+  '<header class="bar bar-nav">',
+
+  '<div class="bar bar-standard bar-header-secondary">',
+  '<form>',
+  '<input type="text" id="emailAddr" placeholder="Email">',
+  '<input type="password" id="pass" placeholder="Password">',
+  '<input type="password" id="pass" placeholder="Confirm Password">',
+  '<button id="btnRegister" class="btn btn-positive btn-block">Register</button>',
+  '</form>',
   '</div>'
 
 
@@ -162,6 +181,28 @@ var LoginView = Jr.View.extend({
   }
 });
 
+var RegisterView = Jr.View.extend({
+  render: function(){
+    this.$el.html(RegisterTemplate);
+    return this;
+  },
+  events: {
+    'click #btnRegister': 'onClickRegister'
+  },
+
+  onClickRegister: function() {
+
+    Jr.Navigator.navigate('home',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.LEFT
+      }
+    });
+  }
+});
+
 
 var CarouselView = Jr.View.extend({
   render: function(){
@@ -256,6 +297,7 @@ var AppRouter = Jr.Router.extend({
     'home': 'home',
     'addTask': 'addTask',
     'login': 'login',
+    'register': 'register',
     'carousel': 'carousel',
   },
 
@@ -274,6 +316,10 @@ var AppRouter = Jr.Router.extend({
   login: function(){
     var loginView = new LoginView();
     this.renderView(loginView);
+  },
+  register: function (){
+    var registerView = new RegisterView();
+    this.renderView(registerView);
   },
   carousel: function(){
     var carouselView = new CarouselView();
