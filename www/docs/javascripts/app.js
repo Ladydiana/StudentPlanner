@@ -1,3 +1,9 @@
+var TaskCollection = Backbone.Firebase.Collection.extend({
+    url: "https://flickering-fire-9493.firebaseio.com/ToDo"
+});
+
+
+
 var HomeTemplate = [
   // Put in a div with class content.  Ratchet will style this appropriately.
   '<nav class="bar bar-standard">',
@@ -5,7 +11,7 @@ var HomeTemplate = [
 
   '<button id="btnAddTask" class="btn pull-right">Add Task</button>',
   '<button id="btnLogout" class="btn btn-link btn-nav pull-left">Logout</button>',
-  '<h1 class="title">ToDo List Junior App</h1>',
+  '<h1 class="title">Student Planner</h1>',
   '</header>',
   '</nav>',
 
@@ -93,9 +99,8 @@ var AddTaskTemplate = [
   '<h1 class="title">Add Task</h1>',
   '</header>',
   '</nav>',
-
   '<div class="bar bar-standard bar-header-secondary">',
-  '<form>',
+  '<form class="input-group">',
   '<select name="event_type" id="event_type">',
   '<option value="Homework">Homework </option>',
   '<option value="Project">Project </option>',
@@ -106,6 +111,12 @@ var AddTaskTemplate = [
   '<option value="Other">Other </option>',
   '</select>',
   '<input id="txtTitle" type="text" placeholder="Title">',
+  '<input type="date" name="date" id="date" >',
+  '<input type="time" name="time" id="time" ">',
+  '<input type="checkbox" id="memento" name="memento" class="switch_toggle">',
+  '<label for="memento">Memento</label>',
+  '<br/>',
+  '<br/>',
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
   '<button id="btnAdd" class="btn btn-positive btn-block">Save Task</button>',
   '</form>',
@@ -113,9 +124,7 @@ var AddTaskTemplate = [
 
 ].join('\n');
 
-var TaskCollection = Backbone.Firebase.Collection.extend({
-    url: "https://flickering-fire-9493.firebaseio.com/ToDo"
-});
+
 
 
 var HomeView = Jr.View.extend({
@@ -133,9 +142,11 @@ var HomeView = Jr.View.extend({
    console.log(todoList);
    var title = todoList.attributes.title;
    var desc = todoList.attributes.description;
-   var event_type= todoList.attributes.event_type;
-   $('#lst').append('<li class="table-view-cell">' + event_type +"- "+ title + ': ' + desc + '</li>');
-   console.log(event_type);
+   var event_type = todoList.attributes.event_type;
+   var date = todoList.attributes.date;
+   var time = todoList.attributes.time;
+   var memento = todoList.attributes.memento;
+   $('#lst').append('<li class="table-view-cell">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</li>');
   },
 
   events: {
@@ -287,18 +298,55 @@ var AddTaskView = Jr.View.extend({
   onClickAdd: function() {
     var event_type = $('#event_type').val();
     var title = $('#txtTitle').val();
+    var date = $('#date').val();
+    var time = $('#time').val();
+    var memento = $('#memento').val();
     var desc = $('#txtDesc').val();
-    this.collection.create({
+
+    //alert(date);
+    this.collection.create(
+        {
         event_type: event_type,
         title: title,
-        description: desc
-    });
-    //AppRouter.navigate("/home", true);
-    Backbone.history.navigate("/home", true);
-    return false;
-  },
+        date: date,
+        time: time,
+        description: desc,
+        memento: memento
+        },
+        {
+        wait:true,
 
-});
+        success: function(resp){
+         console.log("Data sent to server");
+         alert("Event added.");
+        Backbone.history.navigate("#home",  {
+                trigger: true,
+                forceReload: true
+            });
+        },
+        error : function(err) {
+        console.log('error callback');
+        // this error message for dev only
+        alert('There was an error. See console for details');
+        console.log(err);
+        }
+      }
+  );
+    //AppRouter.navigate("/home", true);
+    //return false;
+
+  }
+  });
+
+/*
+var connectedRef = new Firebase("https://flickering-fire-9493.firebaseio.com/.info/connected");
+connectedRef.on("value", function(snap) {
+  if (snap.val() === true) {
+    alert("connected");
+  } else {
+    alert("not connected");
+  }
+}); */
 
 
 var AppRouter = Jr.Router.extend({

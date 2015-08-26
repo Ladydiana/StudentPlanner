@@ -29,7 +29,7 @@
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
 
-        <!--  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *"> -->
+        <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com 'unsafe-eval';script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; media-src *">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
@@ -43,7 +43,7 @@
         <link rel="stylesheet" href="src/stylesheets/junior.css">
         <link rel="stylesheet" href="docs/stylesheets/lib/font-awesome.css">
         <link rel="stylesheet" href="docs/stylesheets/style.css">
-
+        <link rel="stylesheet" href="docs/stylesheets/css3_toggle_switch.css">
         <title>Student Planner</title>
     </head>
     <body>
@@ -62,9 +62,11 @@
             <div id="app-main"></div>
         </div>
         <!-- end -->
-        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
         <!-- inserted by me -->
+        <script src="lib/javascripts/toggles.js"></script>
+        <script src="lib/javascripts/ratchet.min.js"></script>
         <script src="lib/javascripts/modernizr.custom.15848.js"></script>
         <script src="lib/javascripts/zepto.min.js"></script>
         <script src="lib/javascripts/zepto.flickable.min.js"></script>
@@ -72,10 +74,25 @@
         <script src="lib/javascripts/jquery.js"></script>
         <script src="lib/javascripts/underscore-min.js"></script>
         <script src="lib/javascripts/backbone-min.js"></script>
-        <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
-        <script src="https://cdn.firebase.com/libs/backbonefire/0.5.1/backbonefire.min.js"></script>
+        <script src="lib/javascripts/firebase.js"></script>
+        <script src="lib/javascripts/backbonefire.min.js"></script>
         <script src="src/javascripts/junior.js"></script>
+        <!--
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="https://rawgithub.com/jquery/jquery-ui/1-10-stable/ui/jquery.ui.datepicker.js"></script>
+        <script src="http://code.jquery.com/mobile/git/jquery.mobile-git.js"></script>
+        <script src="https://rawgithub.com/arschmitz/jquery-mobile-datepicker-wrapper/master/jquery.mobile.datepicker.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/jquery.mousewheel.min.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.core.min.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.calbox.min.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.datebox.min.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.flipbox.min.js"></script>
+        <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/i18n/jquery.mobile.datebox.i18n.en_US.utf8.js"></script>
+        <script src="http://cdn.jtsage.com/datebox/1.4.5/jqm-datebox-1.4.5.css"> </script>
+    -->
         <script src="docs/javascripts/app.js"></script>
+
         <!-- end -->
     </body>
 </html>
