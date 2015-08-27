@@ -1172,7 +1172,6 @@ select {
   right: 11px;
   font-size: 13px;
   color: #999;
-  text-transform: uppercase;
   content: "Off";
 }
 .toggle.active {

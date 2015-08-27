@@ -100,7 +100,7 @@ var AddTaskTemplate = [
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
-  '<form class="input-group">',
+  '<form class="input-group" method="post" action="">',
   '<select name="event_type" id="event_type">',
   '<option value="Homework">Homework </option>',
   '<option value="Project">Project </option>',
@@ -113,8 +113,15 @@ var AddTaskTemplate = [
   '<input id="txtTitle" type="text" placeholder="Title">',
   '<input type="date" name="date" id="date" >',
   '<input type="time" name="time" id="time" ">',
-  '<input type="checkbox" id="memento" name="memento" class="switch_toggle">',
-  '<label for="memento">Memento</label>',
+  '<br />',
+  '<br />',
+  '<ul class="table-view">',
+  '<li class="table-view-cell">',
+  'Memento',
+  '<input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round">',
+  '<label for="memento"></label>',
+  '</li>',
+  '</ul>',
   '<br/>',
   '<br/>',
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
@@ -130,7 +137,9 @@ var AddTaskTemplate = [
 var HomeView = Jr.View.extend({
 
   initialize: function() {
+     _.bindAll(this, 'render');
     this.listenTo(this.collection, 'add', this.addOne);
+    this.on('reset', this.render, this);
   },
 
   render: function(){
@@ -292,15 +301,21 @@ var AddTaskView = Jr.View.extend({
         // This time slide to the right because we are going back
         type: Jr.Navigator.animations.SLIDE_STACK,
         direction: Jr.Navigator.directions.RIGHT
-      }
+      },
+
     });
+
+    window.location.reload();
+    return false;
+
   },
+
   onClickAdd: function() {
     var event_type = $('#event_type').val();
     var title = $('#txtTitle').val();
     var date = $('#date').val();
     var time = $('#time').val();
-    var memento = $('#memento').val();
+    var memento = $('#memento').is(':checked');
     var desc = $('#txtDesc').val();
 
     //alert(date);
@@ -318,11 +333,15 @@ var AddTaskView = Jr.View.extend({
 
         success: function(resp){
          console.log("Data sent to server");
-         alert("Event added.");
-        Backbone.history.navigate("#home",  {
+        alert("Event added.");
+
+        /*Backbone.history.navigate("home",  {
                 trigger: true,
                 forceReload: true
-            });
+            });*/
+        Jr.Navigator.navigate('home',{
+        trigger: true
+        });
         },
         error : function(err) {
         console.log('error callback');
@@ -333,8 +352,7 @@ var AddTaskView = Jr.View.extend({
       }
   );
     //AppRouter.navigate("/home", true);
-    //return false;
-
+    return true;
   }
   });
 
@@ -351,6 +369,7 @@ connectedRef.on("value", function(snap) {
 
 var AppRouter = Jr.Router.extend({
   routes: {
+    '': 'home',
     'home': 'home',
     'addTask': 'addTask',
     'login': 'login',
@@ -386,6 +405,11 @@ var AppRouter = Jr.Router.extend({
 });
 
 var appRouter = new AppRouter();
+
+//appRouter.on("route:home", function(page) {
+//    Backbone.history.loadUrl(Backbone.history.getFragment());
+//});
+
 Backbone.history.start();
 Jr.Navigator.navigate('home',{
   trigger: true
