@@ -1,8 +1,13 @@
-var TaskCollection = Backbone.Firebase.Collection.extend({
-    url: "https://flickering-fire-9493.firebaseio.com/ToDo"
+var TaskCollection;
+
+var UsersCollection = Backbone.Firebase.Collection.extend({
+    url: "https://flickering-fire-9493.firebaseio.com/users"
 });
 
+var userId;
+var userCollection = new UsersCollection();
 
+ var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
 
 var HomeTemplate = [
   // Put in a div with class content.  Ratchet will style this appropriately.
@@ -47,45 +52,15 @@ var RegisterTemplate = [
 
   '<div class="bar bar-standard bar-header-secondary">',
   '<form>',
-  '<input type="text" id="emailAddr" placeholder="Email">',
-  '<input type="password" id="pass" placeholder="Password">',
-  '<input type="password" id="pass" placeholder="Confirm Password">',
+  '<input type="text" id="emailAddr" placeholder="Email" required>',
+  '<input type="password" id="pass" placeholder="Password" required>',
+  '<input type="password" id="confirm_pass" placeholder="Confirm Password" required>',
   '<button id="btnRegister" class="btn btn-positive btn-block">Register</button>',
+  '<br />',
+  '<a href="#login" style="margin:auto; text-align:center; display:block;">Already have an account? Click here to LOGIN.</a>',
   '</form>',
   '</div>'
 
-
-].join('\n');
-
-
-var CarouselTemplate = [
-  '<nav class="bar bar-standard">',
-  '<header class="bar bar-nav">',
-
-  '<div class="bar bar-standard bar-header-secondary">',
-
-  ' <div class="carousel-container">',
-  '   <ul class="carousel-list">',
-  '     <li class="carousel-item native-look-and-feel">',
-  '       <summary>Transitions with a native look and feel.</summary>',
-  '       <div class="feature-icon"></div>',
-  '     </li>',
-  '     <li class="carousel-item carousel-content">',
-  '       <summary>Carousels using flickable.js</summary>',
-  '       <i class="icon-picture"></i>',
-  '     </li>',
-  '     <li class="carousel-item backbone-content">',
-  '       <summary>Integrated with Backbone.js</summary>',
-  '       <div class="feature-icon"></div>',
-  '     </li>',
-  '   </ul>',
-  ' <div class="carousel-navigation-container">',
-  '   <ul class="carousel-navigation"><li class="active" data-index="0"></li><li data-index="1"></li><li data-index="2"></li></ul>',
-  ' </div>',
-  ' </div>',
-
-  '<button id="btnLogin" class="btn btn-positive btn-block">Login</button>',
-  '</div>'
 
 ].join('\n');
 
@@ -137,9 +112,16 @@ var AddTaskTemplate = [
 var HomeView = Jr.View.extend({
 
   initialize: function() {
-     _.bindAll(this, 'render');
-    this.listenTo(this.collection, 'add', this.addOne);
-    this.on('reset', this.render, this);
+    var authData = ref.getAuth();
+    var TaskCollection = Backbone.Firebase.Collection.extend({
+            url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
+    });
+
+    var col = new TaskCollection();
+
+    //this.collection = col;
+
+    this.listenTo(col, 'add', this.addOne);
   },
 
   render: function(){
@@ -148,13 +130,14 @@ var HomeView = Jr.View.extend({
   },
 
   addOne: function(todoList) {
-   console.log(todoList);
+   console.log("This", todoList);
    var title = todoList.attributes.title;
    var desc = todoList.attributes.description;
    var event_type = todoList.attributes.event_type;
    var date = todoList.attributes.date;
    var time = todoList.attributes.time;
    var memento = todoList.attributes.memento;
+   console.log(title+" "+desc+" "+ date);
    $('#lst').append('<li class="table-view-cell">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</li>');
   },
 
@@ -176,6 +159,8 @@ var HomeView = Jr.View.extend({
   },
   onClickLogout: function() {
 
+    ref.unauth();
+
     Jr.Navigator.navigate('login',{
       trigger: true,
       animation: {
@@ -184,6 +169,8 @@ var HomeView = Jr.View.extend({
         direction: Jr.Navigator.directions.LEFT
       }
     });
+
+
   }
 });
 
@@ -198,13 +185,30 @@ var LoginView = Jr.View.extend({
   },
 
   onClickLogin: function() {
+    var email= $('#emailAddr').val();
+    var pass = $('#pass').val();
 
-    Jr.Navigator.navigate('home',{
-      trigger: true,
-      animation: {
-        // This time slide to the right because we are going back
-        type: Jr.Navigator.animations.SLIDE_STACK,
-        direction: Jr.Navigator.directions.LEFT
+    ref.authWithPassword({
+      "email": email,
+      "password": pass
+    },
+    function(error, authData) {
+      if (error) {
+        console.log("Login Failed!", error);
+        alert("Login Failed!", error);
+        $('#pass').val('');
+      }
+      else {
+        //console.log("Authenticated successfully with payload:", authData);
+        Jr.Navigator.navigate('home',{
+          trigger: true,
+          animation: {
+            // This time slide to the right because we are going back
+            type: Jr.Navigator.animations.SLIDE_STACK,
+            direction: Jr.Navigator.directions.LEFT
+          }
+        });
+        window.location.reload();
       }
     });
   }
@@ -220,65 +224,90 @@ var RegisterView = Jr.View.extend({
   },
 
   onClickRegister: function() {
+    var emailAddr = $('#emailAddr').val();
+    var pass = $('#pass').val();
+    var confirmPass = $('#confirm_pass').val();
+    var passw=  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
-    Jr.Navigator.navigate('home',{
-      trigger: true,
-      animation: {
-        // This time slide to the right because we are going back
-        type: Jr.Navigator.animations.SLIDE_STACK,
-        direction: Jr.Navigator.directions.LEFT
-      }
-    });
+    if(pass!=confirmPass) {
+      console.log("Passwords do not match.");
+      $('#pass').val('');
+      $('#confirm_pass').val('');
+      alert("Passwords do not match.");
+    }
+
+    /*else if(pass.match(passw)){
+      console.log("Password must be between 6 to 20 characters and contain at least one numeric digit, one uppercase and one lowercase letter.");
+      $('#pass').val('');
+      $('#confirm_pass').val('');
+      alert("Password must be between 6 to 20 characters and contain at least one numeric digit, one uppercase and one lowercase letter.");
+    }*/
+
+    else {
+
+      ref.createUser({
+        email: emailAddr,
+        password: pass
+      }, function(error, userData) {
+        if (error) {
+          switch (error.code) {
+            case "EMAIL_TAKEN":
+              console.log("The new user account cannot be created because the email is already in use.");
+              alert("The new user account cannot be created because the email is already in use.");
+              break;
+            case "INVALID_EMAIL":
+              console.log("The specified email is not a valid email.");
+              alert("The specified email is not a valid email.");
+              break;
+            default:
+              console.log("Error creating user:", error);
+              alert("Error creating user:", error);
+              break;
+          }
+          $('#pass').val('');
+          $('#confirm_pass').val('');
+        }
+        else {
+          this.userId = userData.uid;
+          userCollection.add({id: this.userId, events: ""});
+          this.TaskCollection = Backbone.Firebase.Collection.extend({
+            url: "https://flickering-fire-9493.firebaseio.com/users/"+this.userId
+          });
+
+          console.log("Successfully created user account with uid:", userData.uid);
+          alert("User successfully created.");
+
+          //now we need to log the user in
+
+          ref.authWithPassword({
+            "email": emailAddr,
+            "password": pass
+          },
+          function(error, authData) {
+            if (error) {
+              console.log("Login Failed!", error);
+              alert("Login Failed!", error);
+              $('#pass').val('');
+            }
+            else {
+              //console.log("Authenticated successfully with payload:", authData);
+              Jr.Navigator.navigate('home',{
+                trigger: true,
+                animation: {
+                  // This time slide to the right because we are going back
+                  type: Jr.Navigator.animations.SLIDE_STACK,
+                  direction: Jr.Navigator.directions.LEFT
+                }
+              });
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }
   }
 });
 
-
-var CarouselView = Jr.View.extend({
-  render: function(){
-    this.$el.html(CarouselTemplate);
-    this.afterRender();
-    return this;
-  },
-  afterRender: function() {
-    this.setUpCarousel();
-  },
-
-  setUpCarousel: function() {
-    var after = function() {
-        this.$('.carousel-list').flickable({segments:3});
-    };
-    setTimeout(after,1);
-  },
-  events: {
-    'click #btnLogin': 'onClickLogin',
-    'onScroll .carousel-list': 'onScrollCarousel',
-    'click .carousel-navigation li': 'onClickCarouselNavigationItem'
-  },
-
-  onClickLogin: function() {
-
-    Jr.Navigator.navigate('login',{
-      trigger: true,
-      animation: {
-        // This time slide to the right because we are going back
-        type: Jr.Navigator.animations.SLIDE_STACK,
-        direction: Jr.Navigator.directions.LEFT
-      }
-    });
-  },
-
-  onScrollCarousel: function() {
-      var index = this.$('.carousel-list').flickable('segment');
-    this.$('.carousel-navigation li').removeClass('active');
-    this.$('.carousel-navigation li[data-index="'+index+'"]').addClass('active');
-  },
-
-  onClickCarouselNavigationItem: function(e) {
-    var index = $(e.currentTarget).attr('data-index');
-    this.$('.carousel-list').flickable('segment',index);
-  }
-
-});
 
 
 var AddTaskView = Jr.View.extend({
@@ -318,6 +347,14 @@ var AddTaskView = Jr.View.extend({
     var memento = $('#memento').is(':checked');
     var desc = $('#txtDesc').val();
 
+    var authData = ref.getAuth();
+
+    var TaskCollection = Backbone.Firebase.Collection.extend({
+            url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
+    });
+
+    this.collection = new TaskCollection();
+
     //alert(date);
     this.collection.create(
         {
@@ -332,22 +369,19 @@ var AddTaskView = Jr.View.extend({
         wait:true,
 
         success: function(resp){
-         console.log("Data sent to server");
-        alert("Event added.");
+          console.log("Data sent to server");
+          alert("Event added.");
 
-        /*Backbone.history.navigate("home",  {
-                trigger: true,
-                forceReload: true
-            });*/
-        Jr.Navigator.navigate('home',{
-        trigger: true
-        });
+          Jr.Navigator.navigate('home',{
+          trigger: true
+          });
+          window.location.reload();
         },
         error : function(err) {
-        console.log('error callback');
-        // this error message for dev only
-        alert('There was an error. See console for details');
-        console.log(err);
+          console.log('error callback');
+          // this error message for dev only
+          alert('There was an error. See console for details');
+          console.log(err);
         }
       }
   );
@@ -356,35 +390,26 @@ var AddTaskView = Jr.View.extend({
   }
   });
 
-/*
-var connectedRef = new Firebase("https://flickering-fire-9493.firebaseio.com/.info/connected");
-connectedRef.on("value", function(snap) {
-  if (snap.val() === true) {
-    alert("connected");
-  } else {
-    alert("not connected");
-  }
-}); */
-
 
 var AppRouter = Jr.Router.extend({
   routes: {
-    '': 'home',
     'home': 'home',
     'addTask': 'addTask',
     'login': 'login',
     'register': 'register',
-    'carousel': 'carousel',
   },
 
   home: function(){
-    var collection = new TaskCollection();
+    var authData = ref.getAuth();
     var homeView = new HomeView({
-        collection: collection
     });
     this.renderView(homeView);
   },
   addTask: function(){
+    var authData = ref.getAuth();
+    var TaskCollection = Backbone.Firebase.Collection.extend({
+            url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
+    });
     var collection = new TaskCollection();
     var addTaskView = new AddTaskView({ collection: collection });
     this.renderView(addTaskView);
@@ -397,20 +422,20 @@ var AppRouter = Jr.Router.extend({
     var registerView = new RegisterView();
     this.renderView(registerView);
   },
-  carousel: function(){
-    var carouselView = new CarouselView();
-    this.renderView(carouselView);
-  }
 
 });
 
 var appRouter = new AppRouter();
 
-//appRouter.on("route:home", function(page) {
-//    Backbone.history.loadUrl(Backbone.history.getFragment());
-//});
-
 Backbone.history.start();
-Jr.Navigator.navigate('home',{
+
+    if(ref.getAuth()==null) {
+      Jr.Navigator.navigate('login',{
+      trigger: true
+    });
+    }
+/*
+Jr.Navigator.navigate('login',{
   trigger: true
 });
+*/
