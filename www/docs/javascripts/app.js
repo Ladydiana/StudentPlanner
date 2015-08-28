@@ -9,6 +9,13 @@ var userCollection = new UsersCollection();
 
  var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
 
+
+
+/*
+ * ----------------------------------------------------------
+ *  TEMPLATES
+ * ----------------------------------------------------------
+ */
 var HomeTemplate = [
   // Put in a div with class content.  Ratchet will style this appropriately.
   '<nav class="bar bar-standard">',
@@ -106,7 +113,85 @@ var AddTaskTemplate = [
 
 ].join('\n');
 
+var SettingsTemplate =[
+  '<nav class="bar bar-standard">',
+  '<header class="bar bar-nav">',
 
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<h1 class="title">Settings</h1>',
+  '</header>',
+  '</nav>',
+  '<div class="bar bar-standard bar-header-secondary">',
+  '<ul class="table-view">',
+  '<li>',
+  '<a href="#changeEmail">Change Email</a>',
+  '</li>',
+  '<li>',
+  '<a href="#changePassword">Change Password</a>',
+  '</li>',
+  '<li>',
+  '<a href="#deleteAccount">Delete Account</a>',
+  '</li>',
+  '</ul>',
+  '</div>'
+].join('\n');
+
+var ChangeEmailTemplate =[
+  '<nav class="bar bar-standard">',
+  '<header class="bar bar-nav">',
+
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<h1 class="title">Change Username</h1>',
+  '</header>',
+  '</nav>',
+  '<div class="bar bar-standard bar-header-secondary">',
+  '<form class="input-group" method="post" action="">',
+  '<input id="txtOldEmail" type="text" placeholder="Old email address">',
+  '<input id="txtNewEmail" type="text" placeholder="New email address">',
+  '<input id="pass" type="password" placeholder="Password">',
+  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '</form>',
+  '</div>'
+].join('\n');
+
+var ChangePasswordTemplate =[
+  '<nav class="bar bar-standard">',
+  '<header class="bar bar-nav">',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<h1 class="title">Change Password</h1>',
+  '</header>',
+  '</nav>',
+  '<div class="bar bar-standard bar-header-secondary">',
+  '<form class="input-group" method="post" action="">',
+  '<input id="email" type="text" placeholder="Email address">',
+  '<input id="oldPass" type="password" placeholder="Password">',
+  '<input id="newPass" type="password" placeholder="New password">',
+  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '</form>',
+  '</div>'
+].join('\n');
+
+var DeleteAccountTemplate =[
+  '<nav class="bar bar-standard">',
+  '<header class="bar bar-nav">',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<h1 class="title">Delete Account</h1>',
+  '</header>',
+  '</nav>',
+  '<div class="bar bar-standard bar-header-secondary">',
+  '<form class="input-group" method="post" action="">',
+  '<input id="email" type="text" placeholder="Email address">',
+  '<input id="pass" type="password" placeholder="Password">',
+  '<button id="btnDelete" class="btn btn-positive btn-block">Delete</button>',
+  '</form>',
+  '</div>'
+].join('\n');
+
+/*
+ * ----------------------------------------------------------
+ *  VIEWS
+ * ----------------------------------------------------------
+ */
 
 
 var HomeView = Jr.View.extend({
@@ -118,9 +203,7 @@ var HomeView = Jr.View.extend({
     });
 
     var col = new TaskCollection();
-
     //this.collection = col;
-
     this.listenTo(col, 'add', this.addOne);
   },
 
@@ -244,7 +327,6 @@ var RegisterView = Jr.View.extend({
     }*/
 
     else {
-
       ref.createUser({
         email: emailAddr,
         password: pass
@@ -309,7 +391,6 @@ var RegisterView = Jr.View.extend({
 });
 
 
-
 var AddTaskView = Jr.View.extend({
 
   render: function(){
@@ -333,10 +414,8 @@ var AddTaskView = Jr.View.extend({
       },
 
     });
-
     window.location.reload();
     return false;
-
   },
 
   onClickAdd: function() {
@@ -391,12 +470,243 @@ var AddTaskView = Jr.View.extend({
   });
 
 
+var SettingsView= Jr.View.extend({
+   render: function(){
+    this.$el.html(SettingsTemplate);
+    return this;
+  },
+  events: {
+    'click #btnBack': 'onClickBack',
+  },
+  onClickBack: function() {
+    Jr.Navigator.navigate('home',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.RIGHT
+      },
+    });
+    window.location.reload();
+    return false;
+  },
+});
+
+
+var ChangeEmailView = Jr.View.extend({
+   render: function(){
+    this.$el.html(ChangeEmailTemplate);
+    return this;
+  },
+  events: {
+    'click #btnBack': 'onClickBack',
+    'click #btnChange': 'onClickChange'
+  },
+  onClickBack: function() {
+    Jr.Navigator.navigate('settings',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.RIGHT
+      },
+    });
+    return false;
+  },
+  onClickChange: function() {
+    var oldEmail = $('#txtOldEmail').val();
+    var newEmail = $('#txtNewEmail').val();
+    var pass = $('#pass').val();
+   ref.changeEmail({
+      oldEmail: oldEmail,
+      newEmail: newEmail,
+      password: pass
+    }, function(error) {
+      if (error) {
+        switch (error.code) {
+          case "INVALID_PASSWORD":
+            console.log("The specified user account password is incorrect.");
+            alert("The specified user account password is incorrect.");
+            break;
+          case "INVALID_USER":
+            console.log("The specified user account does not exist.");
+            alert("The specified user account does not exist.");
+            break;
+          default:
+            console.log("Error changing email: ", error);
+            alert("Error changing email: ", error);
+            break;
+        }
+      }
+      else {
+        console.log("User email changed successfully!");
+        alert("User email changed successfully!");
+        Jr.Navigator.navigate('settings',{
+          trigger: true,
+          animation: {
+            // This time slide to the right because we are going back
+            type: Jr.Navigator.animations.SLIDE_STACK,
+            direction: Jr.Navigator.directions.RIGHT
+          },
+        });
+      }
+    });
+  },
+});
+
+
+var ChangePasswordView = Jr.View.extend({
+   render: function(){
+    this.$el.html(ChangePasswordTemplate);
+    return this;
+  },
+  events: {
+    'click #btnBack': 'onClickBack',
+    'click #btnChange': 'onClickChange'
+  },
+  onClickBack: function() {
+    Jr.Navigator.navigate('settings',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.RIGHT
+      },
+    });
+    return false;
+  },
+  onClickChange: function() {
+    var email = $('#email').val();
+    var oldPass = $('#oldPass').val();
+    var newPass = $('#newPass').val();
+    ref.changePassword({
+      email: email,
+      oldPassword: oldPass,
+      newPassword: newPass
+    }, function(error) {
+      if (error) {
+        switch (error.code) {
+          case "INVALID_PASSWORD":
+            console.log("The specified user account password is incorrect.");
+            alert("The specified user account password is incorrect.");
+            break;
+          case "INVALID_USER":
+            console.log("The specified user account does not exist.");
+            alert("The specified user account does not exist.");
+            break;
+          default:
+            console.log("Error changing password:", error);
+            alert("Error changing password:", error);
+            break;
+        }
+      } else {
+        console.log("User password changed successfully!");
+        alert("User password changed successfully!");
+        Jr.Navigator.navigate('settings',{
+          trigger: true,
+          animation: {
+            // This time slide to the right because we are going back
+            type: Jr.Navigator.animations.SLIDE_STACK,
+            direction: Jr.Navigator.directions.RIGHT
+          },
+        });
+      }
+    });
+  },
+});
+
+
+var DeleteAccountView =Jr.View.extend({
+   render: function(){
+    this.$el.html(DeleteAccountTemplate);
+    return this;
+  },
+  events: {
+    'click #btnBack': 'onClickBack',
+    'click #btnDelete': 'onClickDelete'
+  },
+  onClickBack: function() {
+    Jr.Navigator.navigate('settings',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.RIGHT
+      },
+    });
+    return false;
+  },
+  onClickDelete: function() {
+    var email = $('#email').val();
+    var pass = $('#pass').val();
+    var r = confirm("Are you sure you want to delete your account?");
+    if (r == true) {
+        ref.removeUser({
+          email: email,
+          password: pass
+        }, function(error) {
+          if (error) {
+            switch (error.code) {
+              case "INVALID_USER":
+                console.log("The specified user account does not exist.");
+                alert("The specified user account does not exist.");
+                break;
+              case "INVALID_PASSWORD":
+                console.log("The specified user account password is incorrect.");
+                alert("The specified user account password is incorrect.");
+                break;
+              default:
+                console.log("Error removing user:", error);
+                alert("Error removing user:", error);
+                break;
+            }
+          }
+          else {
+            console.log("User account deleted successfully!");
+            alert("User account deleted successfully!");
+            Jr.Navigator.navigate('register',{
+              trigger: true,
+              animation: {
+                // This time slide to the right because we are going back
+                type: Jr.Navigator.animations.SLIDE_STACK,
+                direction: Jr.Navigator.directions.RIGHT
+              },
+            });
+            return false;
+          }
+        });
+    }
+    else {
+      Jr.Navigator.navigate('settings',{
+        trigger: true,
+        animation: {
+          // This time slide to the right because we are going back
+          type: Jr.Navigator.animations.SLIDE_STACK,
+          direction: Jr.Navigator.directions.RIGHT
+        },
+      });
+      return false;
+    }
+
+  },
+});
+
+/*
+ * ----------------------------------------------------------
+ *  ROUTER
+ * ----------------------------------------------------------
+ */
+
 var AppRouter = Jr.Router.extend({
   routes: {
     'home': 'home',
     'addTask': 'addTask',
     'login': 'login',
     'register': 'register',
+    'settings' : 'settings',
+    'changeEmail' : 'changeEmail',
+    'changePassword' : 'changePassword',
+    'deleteAccount' : 'deleteAccount'
   },
 
   home: function(){
@@ -422,18 +732,39 @@ var AppRouter = Jr.Router.extend({
     var registerView = new RegisterView();
     this.renderView(registerView);
   },
-
+  settings: function (){
+    var settingsView = new SettingsView();
+    this.renderView(settingsView);
+  },
+  changeEmail: function (){
+    var changeEmailView = new ChangeEmailView();
+    this.renderView(changeEmailView);
+  },
+  changePassword: function (){
+    var changePasswordView = new ChangePasswordView();
+    this.renderView(changePasswordView);
+  },
+  deleteAccount: function (){
+    var deleteAccountView = new DeleteAccountView();
+    this.renderView(deleteAccountView);
+  },
 });
 
 var appRouter = new AppRouter();
 
 Backbone.history.start();
 
-    if(ref.getAuth()==null) {
+if(ref.getAuth()==null) {
       Jr.Navigator.navigate('login',{
       trigger: true
     });
-    }
+  }
+else {
+    Jr.Navigator.navigate('home',{
+    trigger: true
+  });
+}
+
 /*
 Jr.Navigator.navigate('login',{
   trigger: true
