@@ -76,16 +76,16 @@ var ViewTaskTemplate = [
 
 
 var LoginTemplate = [
-  '<nav class="bar bar-standard">',
+  '<nav class="bar bar-standard" >',
   '<header class="bar bar-nav">',
   '<br/>',
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
-  '<img src="img/logo2.png" alt="Student Planner" style="margin:0px auto;display:block">',
+  '<img src="img/logo2.png" alt="Student Planner" style="margin:0px auto;display:block";">',
   '<br/>',
   '<br/>',
-  '<form>',
+  '<form style="background-color: white;">',
   '<input type="text" id="emailAddr" placeholder="Email">',
   '<input type="password" id="pass" placeholder="Password">',
   '<button id="btnLogin" class="btn btn-positive btn-block">Login</button>',
@@ -121,13 +121,12 @@ var AddTaskTemplate = [
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
   '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
-  '<span class="icon icon-left-nav"></span>', //for the left icon
+  '<span class="icon icon-left"></span>', //for the left icon
   'Back</button>',
   '<h1 class="title">Add Task</h1>',
   '</header>',
   '</nav>',
-  '<div class="bar bar-standard bar-header-secondary">',
-  '<br />',
+  '<div class="bar bar-standard bar-header-secondary" >',
   '<br />',
   '<form class="input-group" method="post" action="">',
   '<select name="event_type" id="event_type">',
@@ -287,9 +286,26 @@ var HomeView = Jr.View.extend({
    var time = todoList.attributes.time;
    var memento = todoList.attributes.memento;
    var id = todoList.attributes.id;
+   var ic= "";
+
+  if(event_type=="Homework")
+    ic="icon-compose";
+  if(event_type=="Project")
+    ic="icon-list";
+  if(event_type=="Course")
+    ic="icon-pages";
+  if(event_type=="Lab")
+    ic="icon-code";
+  if(event_type=="Exam")
+    ic="icon-star-filled";
+  if(event_type=="Meeting")
+    ic="icon-person";
+  if(event_type=="Other")
+    ic="icon-more";
+
    //console.log(title+" "+desc+" "+ date); //Backbone.history.navigate(href, true)
-   $('#lst').append('<li class="table-view-cell list-item"><a href="#editItem/'+id+'" class="list-item" id="'+id+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
-   //$('#lst').append('<li class="table-view-cell list-item"><a href class="list-item" id="'+id+'" onclick="'+editItem(id)+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
+   $('#lst').append('<li class="table-view-cell media"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
+   //$('#lst').append('<li class="table-view-cell list-item"><a href class="list-item" id="'+id+'" onclick="'+editItem(id)+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>'); <div class="media-body"></div>
 
   },
 
