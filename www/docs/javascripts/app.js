@@ -16,6 +16,29 @@ var userCollection = new UsersCollection();
  *  TEMPLATES
  * ----------------------------------------------------------
  */
+
+var FooterTabTemplate = [
+  '<nav class="bar bar-tab">',
+    '<a class="tab-item active" href="#home">',
+    '  <span class="icon icon-home"></span>',
+    '  <span class="tab-label">Home</span>',
+    '</a>',
+    '<a class="tab-item" href="#addTask">',
+    '  <span class="icon icon-edit"></span>',
+    '  <span class="tab-label">Add Task</span>',
+    '</a>',
+    '<a class="tab-item" href="#settings">',
+    '  <span class="icon icon-gear"></span>',
+    '  <span class="tab-label">Settings</span>',
+    '</a>',
+    '<a class="tab-item" href="#logout">',
+    '  <span class="icon icon-star-filled"></span>',
+    '  <span class="tab-label">Logout</span>',
+    '</a>',
+  '</nav>'
+].join('\n');
+
+
 var HomeTemplate = [
   // Put in a div with class content.  Ratchet will style this appropriately.
   '<nav class="bar bar-standard">',
@@ -32,7 +55,8 @@ var HomeTemplate = [
   ' </ul>',
   '</div>'
   // Join the array with a new-line for a quick and easy html template.
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
+
 
 var ViewTaskTemplate = [
 '<nav class="bar bar-standard">',
@@ -42,9 +66,11 @@ var ViewTaskTemplate = [
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<ul id="lst2" class="table-view">'
 
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 
 var LoginTemplate = [
@@ -88,6 +114,8 @@ var AddTaskTemplate = [
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<form class="input-group" method="post" action="">',
   '<select name="event_type" id="event_type">',
   '<option value="Homework">Homework </option>',
@@ -116,7 +144,7 @@ var AddTaskTemplate = [
   '<button id="btnAdd" class="btn btn-positive btn-block">Save Task</button>',
   '</form>',
   '</div>'
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 
 var SettingsTemplate =[
@@ -127,6 +155,8 @@ var SettingsTemplate =[
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<ul class="table-view">',
   '<li>',
   '<a href="#changeEmail">Change Email</a>',
@@ -139,7 +169,7 @@ var SettingsTemplate =[
   '</li>',
   '</ul>',
   '</div>'
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 
 var ChangeEmailTemplate =[
@@ -150,6 +180,8 @@ var ChangeEmailTemplate =[
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<form class="input-group" method="post" action="">',
   '<input id="txtOldEmail" type="text" placeholder="Old email address">',
   '<input id="txtNewEmail" type="text" placeholder="New email address">',
@@ -157,7 +189,7 @@ var ChangeEmailTemplate =[
   '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
   '</form>',
   '</div>'
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 
 var ChangePasswordTemplate =[
@@ -168,6 +200,8 @@ var ChangePasswordTemplate =[
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<form class="input-group" method="post" action="">',
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="oldPass" type="password" placeholder="Password">',
@@ -175,7 +209,7 @@ var ChangePasswordTemplate =[
   '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
   '</form>',
   '</div>'
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 
 var DeleteAccountTemplate =[
@@ -186,13 +220,15 @@ var DeleteAccountTemplate =[
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
+  '<br />',
   '<form class="input-group" method="post" action="">',
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="pass" type="password" placeholder="Password">',
   '<button id="btnDelete" class="btn btn-positive btn-block">Delete</button>',
   '</form>',
   '</div>'
-].join('\n');
+].join('\n').concat(FooterTabTemplate);
 
 /*
  * ----------------------------------------------------------
