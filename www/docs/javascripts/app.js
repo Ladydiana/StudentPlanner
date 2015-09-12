@@ -19,7 +19,7 @@ var userCollection = new UsersCollection();
 
 var FooterTabTemplate = [
   '<nav class="bar bar-tab">',
-    '<a class="tab-item active" href="#home">',
+    '<a class="tab-item active" href="#home" onclick="window.location.reload();">',
     '  <span class="icon icon-home"></span>',
     '  <span class="tab-label">Home</span>',
     '</a>',
@@ -32,7 +32,7 @@ var FooterTabTemplate = [
     '  <span class="tab-label">Settings</span>',
     '</a>',
     '<a class="tab-item" href="#logout">',
-    '  <span class="icon icon-star-filled"></span>',
+    '  <span class="icon icon-close"></span>',
     '  <span class="tab-label">Logout</span>',
     '</a>',
   '</nav>'
@@ -43,8 +43,8 @@ var HomeTemplate = [
   // Put in a div with class content.  Ratchet will style this appropriately.
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnAddTask" class="btn pull-right">Add Task</button>',
-  '<button id="btnLogout" class="btn btn-link btn-nav pull-left">Logout</button>',
+  //'<button id="btnAddTask" class="btn pull-right">Add Task</button>',
+  //'<button id="btnLogout" class="btn btn-link btn-nav pull-left">Logout</button>',
   '<h1 class="title">Student Planner</h1>',
   '</header>',
   '</nav>',
@@ -61,7 +61,9 @@ var HomeTemplate = [
 var ViewTaskTemplate = [
 '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
+  '<span class="icon icon-left-nav"></span>', //for the left icon
+  'Back</button>',
   '<h1 class="title">Edit Task</h1>',
   '</header>',
   '</nav>',
@@ -150,7 +152,9 @@ var AddTaskTemplate = [
 var SettingsTemplate =[
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
+  '<span class="icon icon-left-nav"> </span>', //for the left icon
+  'Back</button>',
   '<h1 class="title">Settings</h1>',
   '</header>',
   '</nav>',
@@ -175,7 +179,9 @@ var SettingsTemplate =[
 var ChangeEmailTemplate =[
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
+  '<span class="icon icon-left-nav"></span>', //for the left icon
+  'Back</button>',
   '<h1 class="title">Change Username</h1>',
   '</header>',
   '</nav>',
@@ -195,7 +201,9 @@ var ChangeEmailTemplate =[
 var ChangePasswordTemplate =[
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
+  '<span class="icon icon-left-nav"></span>', //for the left icon
+  'Back</button>',
   '<h1 class="title">Change Password</h1>',
   '</header>',
   '</nav>',
@@ -215,7 +223,9 @@ var ChangePasswordTemplate =[
 var DeleteAccountTemplate =[
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
-  '<button id="btnBack" class="btn btn-link btn-nav pull-left">Back</button>',
+  '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
+  '<span class="icon icon-left-nav"></span>', //for the left icon
+  'Back</button>',
   '<h1 class="title">Delete Account</h1>',
   '</header>',
   '</nav>',
@@ -229,6 +239,9 @@ var DeleteAccountTemplate =[
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
+
+
+var LogoutTemplate =[];
 
 /*
  * ----------------------------------------------------------
@@ -301,7 +314,7 @@ var HomeView = Jr.View.extend({
 });
 
 function editItem(id) {
-    alert("clicked"+ id);
+    //alert("clicked"+ id);
     //Backbone.history.navigate("#editItem/"+id, true);
     //window.location.reload();
     Backbone.history.navigate("#editItem/"+id, {
@@ -335,7 +348,7 @@ var LoginView = Jr.View.extend({
         $('#pass').val('');
       }
       else {
-        //console.log("Authenticated successfully with payload:", authData);
+        console.log("Authenticated successfully with payload:", authData);
         Jr.Navigator.navigate('home',{
           trigger: true,
           animation: {
@@ -344,7 +357,7 @@ var LoginView = Jr.View.extend({
             direction: Jr.Navigator.directions.LEFT
           }
         });
-        //window.location.reload();
+        window.location.reload();
       }
       //window.location.reload();
     });
@@ -877,8 +890,29 @@ var ViewTaskView = Jr.View.extend({
     window.location.reload();
     return false;
   }
-
 });
+
+
+var LogoutView = Jr.View.extend({
+
+  render: function(){
+
+    this.$el.html(LogoutTemplate);
+
+    ref.unauth();
+
+    Jr.Navigator.navigate('login',{
+      trigger: true,
+      animation: {
+        // This time slide to the right because we are going back
+        type: Jr.Navigator.animations.SLIDE_STACK,
+        direction: Jr.Navigator.directions.LEFT
+      }
+    });
+    return this;
+  }
+});
+
 
 /*
  * ----------------------------------------------------------
@@ -896,6 +930,7 @@ var AppRouter = Jr.Router.extend({
     'changeEmail' : 'changeEmail',
     'changePassword' : 'changePassword',
     'deleteAccount' : 'deleteAccount',
+    'logout': 'logout',
     "editItem/:id": "handleRouteAll"
   },
 
@@ -937,6 +972,11 @@ var AppRouter = Jr.Router.extend({
   deleteAccount: function (){
     var deleteAccountView = new DeleteAccountView();
     this.renderView(deleteAccountView);
+  },
+
+  logout: function (){
+    var logoutView = new LogoutView();
+    this.renderView(logoutView);
   },
 
   handleRouteAll: function(id){
