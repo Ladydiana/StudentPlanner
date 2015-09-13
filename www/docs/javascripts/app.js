@@ -51,8 +51,12 @@ var HomeTemplate = [
   '<div class="bar bar-standard bar-header-secondary">',
   '<br />',
   '<br />',
-  ' <ul id="lst" class="table-view">',
-  ' </ul>',
+  //'<ul id="lst" class="table-view">',
+  '<ul class="table-view table-view-divider" id="today">Today</ul>',
+  '<ul class="table-view table-view-divider" id="tomorrow">Tomorrow</ul>',
+  '<ul class="table-view table-view-divider" id="this_month">This Month</ul>',
+  '<ul class="table-view table-view-divider" id="this_year">Later This Year</ul>',
+  //'</ul>',
   '</div>'
   // Join the array with a new-line for a quick and easy html template.
 ].join('\n').concat(FooterTabTemplate);
@@ -89,7 +93,7 @@ var LoginTemplate = [
   '<form style="background-color: white;">',
   '<input type="text" id="emailAddr" placeholder="Email">',
   '<input type="password" id="pass" placeholder="Password">',
-  '<button id="btnLogin" class="btn btn-primary btn-block">Login</button>',
+  '<button id="btnLogin" class="btn btn-primary btn-block">Sign in</button>',
   '</form>',
   '<br/>',
   '<a href="#register" style="margin:auto; text-align:center; display:block;">Don\'t have an account? Click here to REGISTER.</a>',
@@ -289,25 +293,46 @@ var HomeView = Jr.View.extend({
    var id = todoList.attributes.id;
    var ic= "";
 
-  if(event_type=="Homework")
+   if(event_type=="Homework")
     ic="icon-compose";
-  if(event_type=="Project")
+   if(event_type=="Project")
     ic="icon-list";
-  if(event_type=="Course")
+   if(event_type=="Course")
     ic="icon-pages";
-  if(event_type=="Lab")
+   if(event_type=="Lab")
     ic="icon-code";
-  if(event_type=="Exam")
+   if(event_type=="Exam")
     ic="icon-star-filled";
-  if(event_type=="Meeting")
+   if(event_type=="Meeting")
     ic="icon-person";
-  if(event_type=="Other")
+   if(event_type=="Other")
     ic="icon-more";
 
-   //console.log(title+" "+desc+" "+ date); //Backbone.history.navigate(href, true)
-   $('#lst').append('<li class="table-view-cell media"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
-   //$('#lst').append('<li class="table-view-cell list-item"><a href class="list-item" id="'+id+'" onclick="'+editItem(id)+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>'); <div class="media-body"></div>
+   var year=lastCheckedDate.getFullYear();
+   var month=lastCheckedDate.getMonth()+1;
+   var day = lastCheckedDate.getDate();
+   var split = date.split('-');
 
+   //console.log(year+"-"+month+"-"+day+ "/" + split[0]+"-"+split[1]+"-"+split[2]);
+
+   if(split[0]<year)
+    return;
+   else if(split[1]<month)
+    return;
+   else if(split[2]<day && split[1]<=month)
+    return;
+   else {
+    if(day==split[2])
+      $('#today').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(month==split[1] && split[2] == day+1 )
+      $('#tomorrow').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(month==split[1] && split[2] > day)
+      $('#this_month').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(year==split[0] && split[1] > month)
+      $('#this_year').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+
+    //console.log(year+"-"+month+"-"+day+ "/" + split[0]+"-"+split[1]+"-"+split[2]);
+   }
   },
 
   events: {
