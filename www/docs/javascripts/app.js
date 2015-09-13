@@ -7,8 +7,8 @@ var UsersCollection = Backbone.Firebase.Collection.extend({
 var userId;
 var userCollection = new UsersCollection();
 
- var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
-
+var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
+var lastCheckedDate = new Date();
 
 
 /*
@@ -77,18 +77,19 @@ var ViewTaskTemplate = [
 
 var LoginTemplate = [
   '<nav class="bar bar-standard" >',
-  '<header class="bar bar-nav">',
+  '<header class="bar bar-nav" >',
   '<br/>',
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
   '<img src="img/logo2.png" alt="Student Planner" style="margin:0px auto;display:block";">',
   '<br/>',
   '<br/>',
   '<form style="background-color: white;">',
   '<input type="text" id="emailAddr" placeholder="Email">',
   '<input type="password" id="pass" placeholder="Password">',
-  '<button id="btnLogin" class="btn btn-positive btn-block">Login</button>',
+  '<button id="btnLogin" class="btn btn-primary btn-block">Login</button>',
   '</form>',
   '<br/>',
   '<a href="#register" style="margin:auto; text-align:center; display:block;">Don\'t have an account? Click here to REGISTER.</a>',
@@ -109,7 +110,7 @@ var RegisterTemplate = [
   '<input type="text" id="emailAddr" placeholder="Email" required>',
   '<input type="password" id="pass" placeholder="Password" required>',
   '<input type="password" id="confirm_pass" placeholder="Confirm Password" required>',
-  '<button id="btnRegister" class="btn btn-positive btn-block">Register</button>',
+  '<button id="btnRegister" class="btn btn-primary btn-block">Register</button>',
   '<br />',
   '<a href="#login" style="margin:auto; text-align:center; display:block;">Already have an account? Click here to LOGIN.</a>',
   '</form>',
@@ -153,7 +154,7 @@ var AddTaskTemplate = [
   '<br/>',
   '<br/>',
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
-  '<button id="btnAdd" class="btn btn-positive btn-block">Save Task</button>',
+  '<button id="btnAdd" class="btn btn-primary btn-block">Save Task</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -202,7 +203,7 @@ var ChangeEmailTemplate =[
   '<input id="txtOldEmail" type="text" placeholder="Old email address">',
   '<input id="txtNewEmail" type="text" placeholder="New email address">',
   '<input id="pass" type="password" placeholder="Password">',
-  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '<button id="btnChange" class="btn btn-primary btn-block">Change</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -224,7 +225,7 @@ var ChangePasswordTemplate =[
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="oldPass" type="password" placeholder="Password">',
   '<input id="newPass" type="password" placeholder="New password">',
-  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '<button id="btnChange" class="btn btn-primary btn-block">Change</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -245,7 +246,7 @@ var DeleteAccountTemplate =[
   '<form class="input-group" method="post" action="">',
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="pass" type="password" placeholder="Password">',
-  '<button id="btnDelete" class="btn btn-positive btn-block">Delete</button>',
+  '<button id="btnDelete" class="btn btn-primary btn-block">Delete</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -304,7 +305,7 @@ var HomeView = Jr.View.extend({
     ic="icon-more";
 
    //console.log(title+" "+desc+" "+ date); //Backbone.history.navigate(href, true)
-   $('#lst').append('<li class="table-view-cell media"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
+   $('#lst').append('<li class="table-view-cell media"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
    //$('#lst').append('<li class="table-view-cell list-item"><a href class="list-item" id="'+id+'" onclick="'+editItem(id)+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>'); <div class="media-body"></div>
 
   },
@@ -829,7 +830,7 @@ var ViewTaskView = Jr.View.extend({
       else
         checked="";
 
-      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><br /><button id="btnDelete" class="btn btn-positive" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-positive" style="float: left;">Edit</button></form>';
+      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
       this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">' + event_type +"- "+ title + ": "+ event_date+ " " + event_time  + " " + desc + " " + memento +  '</li></ul>' + hiddenForm + '</div>');
    }
     return this;

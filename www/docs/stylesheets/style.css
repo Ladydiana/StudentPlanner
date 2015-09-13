@@ -328,6 +328,10 @@ footer {
   bottom: 3px;
 }
 
+header {
+  background-color:#EF473A;
+}
+
 /* adpacks */
 body .one .bsa_it_ad { background: transparent; border: none; font-family: inherit; padding: 0 15px 0 10px; margin: 0; text-align: right; }
 body .one .bsa_it_ad:hover img { -moz-box-shadow: 0 0 3px #000; -webkit-box-shadow: 0 0 3px #000; box-shadow: 0 0 3px #000; }
