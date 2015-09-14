@@ -57,6 +57,8 @@ var HomeTemplate = [
   '<ul class="table-view table-view-divider" id="this_month">This Month</ul>',
   '<ul class="table-view table-view-divider" id="this_year">Later This Year</ul>',
   //'</ul>',
+  '<br/>',
+  '<br/>',
   '</div>'
   // Join the array with a new-line for a quick and easy html template.
 ].join('\n').concat(FooterTabTemplate);
@@ -73,10 +75,8 @@ var ViewTaskTemplate = [
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
   '<br />',
-  '<br />',
-  '<ul id="lst2" class="table-view">'
-
-].join('\n').concat(FooterTabTemplate);
+  '<ul id="lst2" class="table-view">',
+].join('\n');
 
 
 var LoginTemplate = [
@@ -160,6 +160,10 @@ var AddTaskTemplate = [
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
   '<button id="btnAdd" class="btn btn-primary btn-block">Save Task</button>',
   '</form>',
+  '<br />',
+  '<br />',
+  '<br />',
+  '<br />',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
 
@@ -376,6 +380,16 @@ function editItem(id) {
             });
   }
 
+function schedule (id, title) {
+  cordova.plugins.notification.local.schedule({
+  id: id,
+  text: title,
+  icon: null,
+  sound: null,
+  data: { test: id }
+  });
+};
+
 
 var LoginView = Jr.View.extend({
   render: function(){
@@ -401,7 +415,7 @@ var LoginView = Jr.View.extend({
         $('#pass').val('');
       }
       else {
-        console.log("Authenticated successfully with payload:", authData);
+        //console.log("Authenticated successfully with payload:", authData);
         Jr.Navigator.navigate('home',{
           trigger: true,
           animation: {
@@ -414,7 +428,7 @@ var LoginView = Jr.View.extend({
       }
       //window.location.reload();
     });
-    window.location.reload();
+    //window.location.reload();
   }
 });
 
@@ -546,16 +560,50 @@ var AddTaskView = Jr.View.extend({
     var time = $('#time').val();
     var memento = $('#memento').is(':checked');
     var desc = $('#txtDesc').val();
+    var now = new Date().getTime();
+    var  _5_sec_from_now = new Date(now + 5 * 1000);
 
     var authData = ref.getAuth();
 
     var TaskCollection = Backbone.Firebase.Collection.extend({
-            url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
+      url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
     });
+
+    if (typeof time === 'undefined')
+      time="00:00";
+    if(typeof date == 'undefined')
+      date=lastCheckedDate.getFullYear()+"-"+(lastCheckedDate.getMonth()+1)+"-"+lastCheckedDate.getDate();
 
     this.collection = new TaskCollection();
 
-    //alert(date);
+    var dateSplit= date.split("-");
+    var timeSplit= time.split(":");
+    id= dateSplit[0]+""+dateSplit[1]+""+dateSplit[2]+""+timeSplit[0]+timeSplit[1];
+
+
+    if(typeof cordova !== 'undefined' && memento) {
+      cordova.plugins.notification.local.schedule({
+        id: 1,
+        title: event_type,
+        text: title,
+        at: _5_sec_from_now
+      });
+
+      cordova.plugins.notification.local.schedule({
+        id: id,
+        title: event_type,
+        text: title,
+        at: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1])
+      });
+
+      cordova.plugins.notification.local.schedule({
+        id: id,
+        title: event_type,
+        text: title,
+        at: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0]-1, timeSplit[1])
+      });
+    }
+
     this.collection.create(
         {
         event_type: event_type,
@@ -813,6 +861,10 @@ var DeleteAccountView =Jr.View.extend({
   },
 });
 
+function hashcode(s){
+  return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+}
+
 
 var ViewTaskView = Jr.View.extend({
   initialize: function(){
@@ -834,7 +886,7 @@ var ViewTaskView = Jr.View.extend({
 
     var todoItem = userCollection._byId[this.model.id];
 
-    console.log(todoItem);
+    //console.log(todoItem);
 
     if(typeof todoItem != 'undefined') {
        var title = todoItem.attributes.title;
@@ -844,7 +896,7 @@ var ViewTaskView = Jr.View.extend({
        var event_time = todoItem.attributes.time;
        var memento = todoItem.attributes.memento;
        var id = todoItem.attributes.id;
-       var sel = ["Homework", "Project", "Course", "Lab", "Exam", "Meeting", "Other"]; ///  '<option value="Homework">Homework </option>',
+       var sel = ["Homework", "Project", "Course", "Lab", "Exam", "Meeting", "Other"];
        var index = sel.indexOf(event_type);
        if (index > -1)
           sel.splice(index, 1);
@@ -855,8 +907,8 @@ var ViewTaskView = Jr.View.extend({
       else
         checked="";
 
-      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
-      this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">' + event_type +"- "+ title + ": "+ event_date+ " " + event_time  + " " + desc + " " + memento +  '</li></ul>' + hiddenForm + '</div>');
+      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
+      this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">'  + hiddenForm + '</li></ul><br/><br/><br/>'+FooterTabTemplate);
    }
     return this;
   },

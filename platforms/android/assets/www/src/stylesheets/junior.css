@@ -1,9 +1,10 @@
 #app-container {
-  position: fixed;
+  position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  overflow:auto;
 }
 
 .animate-to-view {
@@ -11,6 +12,11 @@
   height: 100%;
   position: absolute;
   top: 0px;
+}
+
+select {
+  height: 35px;
+  font-size: 17px;
 }
 
 #app-container.animate {

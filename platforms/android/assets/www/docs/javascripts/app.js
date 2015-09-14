@@ -7,8 +7,8 @@ var UsersCollection = Backbone.Firebase.Collection.extend({
 var userId;
 var userCollection = new UsersCollection();
 
- var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
-
+var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
+var lastCheckedDate = new Date();
 
 
 /*
@@ -51,8 +51,14 @@ var HomeTemplate = [
   '<div class="bar bar-standard bar-header-secondary">',
   '<br />',
   '<br />',
-  ' <ul id="lst" class="table-view">',
-  ' </ul>',
+  //'<ul id="lst" class="table-view">',
+  '<ul class="table-view table-view-divider" id="today">Today</ul>',
+  '<ul class="table-view table-view-divider" id="tomorrow">Tomorrow</ul>',
+  '<ul class="table-view table-view-divider" id="this_month">This Month</ul>',
+  '<ul class="table-view table-view-divider" id="this_year">Later This Year</ul>',
+  //'</ul>',
+  '<br/>',
+  '<br/>',
   '</div>'
   // Join the array with a new-line for a quick and easy html template.
 ].join('\n').concat(FooterTabTemplate);
@@ -69,26 +75,25 @@ var ViewTaskTemplate = [
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
   '<br />',
-  '<br />',
-  '<ul id="lst2" class="table-view">'
-
-].join('\n').concat(FooterTabTemplate);
+  '<ul id="lst2" class="table-view">',
+].join('\n');
 
 
 var LoginTemplate = [
   '<nav class="bar bar-standard" >',
-  '<header class="bar bar-nav">',
+  '<header class="bar bar-nav" >',
   '<br/>',
   '</header>',
   '</nav>',
   '<div class="bar bar-standard bar-header-secondary">',
+  '<br />',
   '<img src="img/logo2.png" alt="Student Planner" style="margin:0px auto;display:block";">',
   '<br/>',
   '<br/>',
   '<form style="background-color: white;">',
   '<input type="text" id="emailAddr" placeholder="Email">',
   '<input type="password" id="pass" placeholder="Password">',
-  '<button id="btnLogin" class="btn btn-positive btn-block">Login</button>',
+  '<button id="btnLogin" class="btn btn-primary btn-block">Sign in</button>',
   '</form>',
   '<br/>',
   '<a href="#register" style="margin:auto; text-align:center; display:block;">Don\'t have an account? Click here to REGISTER.</a>',
@@ -109,7 +114,7 @@ var RegisterTemplate = [
   '<input type="text" id="emailAddr" placeholder="Email" required>',
   '<input type="password" id="pass" placeholder="Password" required>',
   '<input type="password" id="confirm_pass" placeholder="Confirm Password" required>',
-  '<button id="btnRegister" class="btn btn-positive btn-block">Register</button>',
+  '<button id="btnRegister" class="btn btn-primary btn-block">Register</button>',
   '<br />',
   '<a href="#login" style="margin:auto; text-align:center; display:block;">Already have an account? Click here to LOGIN.</a>',
   '</form>',
@@ -121,13 +126,12 @@ var AddTaskTemplate = [
   '<nav class="bar bar-standard">',
   '<header class="bar bar-nav">',
   '<button id="btnBack" class="btn btn-link btn-nav pull-left">',
-  '<span class="icon icon-left-nav"></span>', //for the left icon
+  '<span class="icon icon-left"></span>', //for the left icon
   'Back</button>',
   '<h1 class="title">Add Task</h1>',
   '</header>',
   '</nav>',
-  '<div class="bar bar-standard bar-header-secondary" style=" overflow-y: auto;">',
-  '<br />',
+  '<div class="bar bar-standard bar-header-secondary" >',
   '<br />',
   '<form class="input-group" method="post" action="">',
   '<select name="event_type" id="event_type">',
@@ -154,8 +158,12 @@ var AddTaskTemplate = [
   '<br/>',
   '<br/>',
   '<textarea id="txtDesc" placeholder="Description" rows="3"></textarea>',
-  '<button id="btnAdd" class="btn btn-positive btn-block">Save Task</button>',
+  '<button id="btnAdd" class="btn btn-primary btn-block">Save Task</button>',
   '</form>',
+  '<br />',
+  '<br />',
+  '<br />',
+  '<br />',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
 
@@ -203,7 +211,7 @@ var ChangeEmailTemplate =[
   '<input id="txtOldEmail" type="text" placeholder="Old email address">',
   '<input id="txtNewEmail" type="text" placeholder="New email address">',
   '<input id="pass" type="password" placeholder="Password">',
-  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '<button id="btnChange" class="btn btn-primary btn-block">Change</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -225,7 +233,7 @@ var ChangePasswordTemplate =[
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="oldPass" type="password" placeholder="Password">',
   '<input id="newPass" type="password" placeholder="New password">',
-  '<button id="btnChange" class="btn btn-positive btn-block">Change</button>',
+  '<button id="btnChange" class="btn btn-primary btn-block">Change</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -246,7 +254,7 @@ var DeleteAccountTemplate =[
   '<form class="input-group" method="post" action="">',
   '<input id="email" type="text" placeholder="Email address">',
   '<input id="pass" type="password" placeholder="Password">',
-  '<button id="btnDelete" class="btn btn-positive btn-block">Delete</button>',
+  '<button id="btnDelete" class="btn btn-primary btn-block">Delete</button>',
   '</form>',
   '</div>'
 ].join('\n').concat(FooterTabTemplate);
@@ -287,10 +295,48 @@ var HomeView = Jr.View.extend({
    var time = todoList.attributes.time;
    var memento = todoList.attributes.memento;
    var id = todoList.attributes.id;
-   //console.log(title+" "+desc+" "+ date); //Backbone.history.navigate(href, true)
-   $('#lst').append('<li class="table-view-cell list-item"><a href="#editItem/'+id+'" class="list-item" id="'+id+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
-   //$('#lst').append('<li class="table-view-cell list-item"><a href class="list-item" id="'+id+'" onclick="'+editItem(id)+'">' + event_type +"- "+ title + ": "+ date+ " " + time  + " " + desc + " " + memento +  '</a></li>');
+   var ic= "";
 
+   if(event_type=="Homework")
+    ic="icon-compose";
+   if(event_type=="Project")
+    ic="icon-list";
+   if(event_type=="Course")
+    ic="icon-pages";
+   if(event_type=="Lab")
+    ic="icon-code";
+   if(event_type=="Exam")
+    ic="icon-star-filled";
+   if(event_type=="Meeting")
+    ic="icon-person";
+   if(event_type=="Other")
+    ic="icon-more";
+
+   var year=lastCheckedDate.getFullYear();
+   var month=lastCheckedDate.getMonth()+1;
+   var day = lastCheckedDate.getDate();
+   var split = date.split('-');
+
+   //console.log(year+"-"+month+"-"+day+ "/" + split[0]+"-"+split[1]+"-"+split[2]);
+
+   if(split[0]<year)
+    return;
+   else if(split[1]<month)
+    return;
+   else if(split[2]<day && split[1]<=month)
+    return;
+   else {
+    if(day==split[2])
+      $('#today').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(month==split[1] && split[2] == day+1 )
+      $('#tomorrow').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(month==split[1] && split[2] > day)
+      $('#this_month').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+    else if(year==split[0] && split[1] > month)
+      $('#this_year').append('<li class="table-view-cell media home"><a href="#editItem/'+id+'" id="'+id+'" class="navigate-right">' + '<span class="media-object icon ' + ic + ' "></span>' +'  '+ date+ " " + time + "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ title + '</a></li>');
+
+    //console.log(year+"-"+month+"-"+day+ "/" + split[0]+"-"+split[1]+"-"+split[2]);
+   }
   },
 
   events: {
@@ -334,6 +380,16 @@ function editItem(id) {
             });
   }
 
+function schedule (id, title) {
+  cordova.plugins.notification.local.schedule({
+  id: id,
+  text: title,
+  icon: null,
+  sound: null,
+  data: { test: id }
+  });
+};
+
 
 var LoginView = Jr.View.extend({
   render: function(){
@@ -359,7 +415,7 @@ var LoginView = Jr.View.extend({
         $('#pass').val('');
       }
       else {
-        console.log("Authenticated successfully with payload:", authData);
+        //console.log("Authenticated successfully with payload:", authData);
         Jr.Navigator.navigate('home',{
           trigger: true,
           animation: {
@@ -372,7 +428,7 @@ var LoginView = Jr.View.extend({
       }
       //window.location.reload();
     });
-    window.location.reload();
+    //window.location.reload();
   }
 });
 
@@ -504,16 +560,50 @@ var AddTaskView = Jr.View.extend({
     var time = $('#time').val();
     var memento = $('#memento').is(':checked');
     var desc = $('#txtDesc').val();
+    var now = new Date().getTime();
+    var  _5_sec_from_now = new Date(now + 5 * 1000);
 
     var authData = ref.getAuth();
 
     var TaskCollection = Backbone.Firebase.Collection.extend({
-            url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
+      url: "https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"
     });
+
+    if (typeof time === 'undefined')
+      time="00:00";
+    if(typeof date == 'undefined')
+      date=lastCheckedDate.getFullYear()+"-"+(lastCheckedDate.getMonth()+1)+"-"+lastCheckedDate.getDate();
 
     this.collection = new TaskCollection();
 
-    //alert(date);
+    var dateSplit= date.split("-");
+    var timeSplit= time.split(":");
+    id= dateSplit[0]+""+dateSplit[1]+""+dateSplit[2]+""+timeSplit[0]+timeSplit[1];
+
+
+    if(typeof cordova !== 'undefined' && memento) {
+      cordova.plugins.notification.local.schedule({
+        id: 1,
+        title: event_type,
+        text: title,
+        at: _5_sec_from_now
+      });
+
+      cordova.plugins.notification.local.schedule({
+        id: id,
+        title: event_type,
+        text: title,
+        at: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1])
+      });
+
+      cordova.plugins.notification.local.schedule({
+        id: id,
+        title: event_type,
+        text: title,
+        at: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0]-1, timeSplit[1])
+      });
+    }
+
     this.collection.create(
         {
         event_type: event_type,
@@ -771,6 +861,10 @@ var DeleteAccountView =Jr.View.extend({
   },
 });
 
+function hashcode(s){
+  return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+}
+
 
 var ViewTaskView = Jr.View.extend({
   initialize: function(){
@@ -792,7 +886,7 @@ var ViewTaskView = Jr.View.extend({
 
     var todoItem = userCollection._byId[this.model.id];
 
-    console.log(todoItem);
+    //console.log(todoItem);
 
     if(typeof todoItem != 'undefined') {
        var title = todoItem.attributes.title;
@@ -802,7 +896,7 @@ var ViewTaskView = Jr.View.extend({
        var event_time = todoItem.attributes.time;
        var memento = todoItem.attributes.memento;
        var id = todoItem.attributes.id;
-       var sel = ["Homework", "Project", "Course", "Lab", "Exam", "Meeting", "Other"]; ///  '<option value="Homework">Homework </option>',
+       var sel = ["Homework", "Project", "Course", "Lab", "Exam", "Meeting", "Other"];
        var index = sel.indexOf(event_type);
        if (index > -1)
           sel.splice(index, 1);
@@ -813,8 +907,8 @@ var ViewTaskView = Jr.View.extend({
       else
         checked="";
 
-      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><br /><button id="btnDelete" class="btn btn-positive" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-positive" style="float: left;">Edit</button></form>';
-      this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">' + event_type +"- "+ title + ": "+ event_date+ " " + event_time  + " " + desc + " " + memento +  '</li></ul>' + hiddenForm + '</div>');
+      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
+      this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">'  + hiddenForm + '</li></ul><br/><br/><br/>'+FooterTabTemplate);
    }
     return this;
   },

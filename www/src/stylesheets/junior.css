@@ -14,6 +14,11 @@
   top: 0px;
 }
 
+select {
+  height: 35px;
+  font-size: 17px;
+}
+
 #app-container.animate {
   -webkit-transition: all 0.4s;
   -moz-transition: all 0.4s;
