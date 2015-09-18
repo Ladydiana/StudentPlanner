@@ -9,6 +9,13 @@ var userCollection = new UsersCollection();
 
 var ref = new Firebase("https://flickering-fire-9493.firebaseio.com");
 var lastCheckedDate = new Date();
+var month= lastCheckedDate.getMonth()+1;
+var day= lastCheckedDate.getDate();
+if (month<10)
+  month="0"+month;
+if(day<10)
+  day="0"+day;
+var dateToString= lastCheckedDate.getFullYear()+"-"+month+"-"+day;
 
 
 /*
@@ -144,8 +151,8 @@ var AddTaskTemplate = [
   '<option value="Other">Other </option>',
   '</select>',
   '<input id="txtTitle" type="text" placeholder="Title">',
-  '<input type="date" name="date" id="date" >',
-  '<input type="time" name="time" id="time" ">',
+  '<input type="date" name="date" id="date" value='+dateToString+'>',
+  '<input type="time" name="time" id="time" value="00:00">',
   '<br />',
   '<br />',
   '<ul class="table-view">',
@@ -907,7 +914,24 @@ var ViewTaskView = Jr.View.extend({
       else
         checked="";
 
-      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="text" id="date" value="'+event_date+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="text" id="time" value="'+event_time+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
+      var dateSplit= event_date.split("-");
+      var timeSplit= event_time.split(":");
+      var month= dateSplit[1];
+      var day= dateSplit[2];
+      //if (month<10)
+      //  month="0"+month;
+      //if(day<10)
+      //  day="0"+day;
+      var dateToString= dateSplit[0]+"-"+month+"-"+day;
+      var hour= timeSplit[0];
+      var minute= timeSplit[1];
+      //if(hour<10)
+      //  hour="0"+hour;
+      //if(minute<10)
+      //  minute="0"+minute;
+      var timeToString= hour+":"+minute;
+
+      var hiddenForm= '<form><select name="event_type" id="event_type"><option value="'+event_type+'" selected>'+event_type+'</option><option value="'+sel[0]+'">'+sel[0]+'</option><option value="'+sel[1]+'">'+sel[1]+'</option><option value="'+sel[2]+'">'+sel[2]+'</option><option value="'+sel[3]+'">'+sel[3]+'</option><option value="'+sel[4]+'">'+sel[4]+'</option><option value="'+sel[5]+'">'+sel[5]+'</option></select><input type="text" id="title" value="'+title+'" ><input type="date" id="date" value="'+dateToString+'" onfocus="'+(type="date")+'" placeholder="Date YYYY-MM-DD"><input type="time" id="time" value="'+timeToString+'" placeholder="Time HH:MM" ><textarea id="desc" value="'+desc+'" placeholder="Description" ></textarea><input type="checkbox" id="memento" name="memento" class="cmn-toggle cmn-toggle-round"'+checked+'>Memento<label for="memento"></label><input type="hidden" id="idI" value="'+id+'" ><br /><button id="btnDelete" class="btn btn-primary" style="float: right;">Delete</button><button id="btnEdit" class="btn btn-primary" style="float: left;">Edit</button></form>';
       this.$el.html(ViewTaskTemplate+'<li class="table-view-cell list-item">'  + hiddenForm + '</li></ul><br/><br/><br/>'+FooterTabTemplate);
    }
     return this;
@@ -934,24 +958,27 @@ var ViewTaskView = Jr.View.extend({
 
   onClickDelete: function() {
     var authData = ref.getAuth();
-    confirm("Are you sure you want to delete this event?");
+    var r= confirm("Are you sure you want to delete this event?");
 
     if (r == false)
       return false;
 
-    var itemToDelete = new Firebase("https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"+this.model.id);
-    itemToDelete.remove();
+    else {
+      var itemToDelete = new Firebase("https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"+this.model.id);
+      itemToDelete.remove();
 
-    Jr.Navigator.navigate('home',{
-      trigger: true,
-      animation: {
-        // This time slide to the right because we are going back
-        type: Jr.Navigator.animations.SLIDE_STACK,
-        direction: Jr.Navigator.directions.RIGHT
-      },
+      Jr.Navigator.navigate('home',{
+        trigger: true,
+        animation: {
+          // This time slide to the right because we are going back
+          type: Jr.Navigator.animations.SLIDE_STACK,
+          direction: Jr.Navigator.directions.RIGHT
+        },
 
-    });
-    window.location.reload();
+      });
+      window.location.reload(); 
+
+    }
     return false;
   },
 
@@ -959,11 +986,11 @@ var ViewTaskView = Jr.View.extend({
     var authData = ref.getAuth();
     var itemToEdit = new Firebase("https://flickering-fire-9493.firebaseio.com/users/"+authData.uid+"/events/"+this.model.id);
     var event_type = $('#event_type').val();
-    var title = $('#txtTitle').val();
+    var title = $('#title').val();
     var date = $('#date').val();
     var time = $('#time').val();
     var memento = $('#memento').is(':checked');
-    var desc = $('#txtDesc').val();
+    var desc = $('#desc').val();
 
     // Prevents a Firebase error throwing. Submitting data as undefined triggers a Firebase error
     if(typeof event_type == 'undefined')
@@ -979,9 +1006,18 @@ var ViewTaskView = Jr.View.extend({
     if(typeof desc == 'undefined')
       desc=null;
 
-    itemToEdit.update({ title: title, event_type: event_type,  date: date, time: time, description : desc, memento : memento });
+    var onComplete = function(error) {
+      if (error) {
+        console.log('Synchronization failed');
+        alert('Synchronization failed', error);
+      }
+      else {
+        console.log('Synchronization succeeded');
+        alert("Item edited.");
+      }
+    };
 
-    alert("Item edited.");
+    itemToEdit.update({ title: title, event_type: event_type,  date: date, time: time, description : desc, memento : memento }, onComplete);
 
      Jr.Navigator.navigate('home',{
       trigger: true,
