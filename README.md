@@ -2,16 +2,8 @@
 
 StudentPlanner is a hybrid planner app developed using HTML5, CSS3, Javascript, NoSQL, Junior, Backbone, Firebase as server and Cordova.
 
-
-![]({{site.baseurl}}//screenshot1.png)
-
-![]({{site.baseurl}}//screenshot2.png)
-
-![]({{site.baseurl}}//Screenshot3.png)
-
-![]({{site.baseurl}}//Screenshot4.png)
-
-![]({{site.baseurl}}//Screenshot5.png)
+![]({{site.baseurl}}/https://farm5.staticflickr.com/4432/36084324053_46fa89a2de_z.jpg)
+![]({{site.baseurl}}/https://farm5.staticflickr.com/4389/36084323953_1aa7990d8f_z.jpg)
 
 
 -----------------------------------------------
