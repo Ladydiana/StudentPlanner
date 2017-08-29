@@ -2,20 +2,26 @@
 
 StudentPlanner is a hybrid planner app developed using HTML5, CSS3, Javascript, NoSQL, Junior, Backbone, Firebase as server and Cordova.
 
-![]({{site.baseurl}}/https://farm5.staticflickr.com/4432/36084324053_46fa89a2de_z.jpg)
-![]({{site.baseurl}}/https://farm5.staticflickr.com/4389/36084323953_1aa7990d8f_z.jpg)
+![alt tag](https://farm5.staticflickr.com/4432/36084324053_46fa89a2de_z.jpg)
 
+![alt tag](https://farm5.staticflickr.com/4389/36084323953_1aa7990d8f_z.jpg)
+
+![alt tag](https://farm5.staticflickr.com/4429/36084324643_a4442ff7ba_z.jpg)
+
+![alt tag](https://farm5.staticflickr.com/4359/36084324523_78db62933f_z.jpg)
+
+![alt tag](https://farm5.staticflickr.com/4428/36084324343_69b7cb68e5_z.jpg)
 
 -----------------------------------------------
 ## Database:
 At the time of the development, the database server was found here: : https://flickering-fire-9493.firebaseio.com/
 If the database would be relational, it could translate roughly to this schema:
 
-![]({{site.baseurl}}//schema.png)
+![alt tag](https://farm5.staticflickr.com/4416/36721757192_2ac2417f8f_z.jpg)
 
 How the database looks like in Firebase:
 
-![]({{site.baseurl}}//exemplu.png)
+![alt tag](https://farm5.staticflickr.com/4346/36721757142_36cff8c97b_z.jpg)
 
 
 -----------------------------------------------
